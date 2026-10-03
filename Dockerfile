@@ -16,6 +16,9 @@ WORKDIR /app
 
 COPY --from=build --chown=node:node /prod/api /app
 
+# نسخ مجلد git إذا كان موجوداً لتجنب خطأ التشغيل
+COPY --from=build --chown=node:node /app/.git /app/.git || true
+
 USER node
 
 EXPOSE 9000
