@@ -37,13 +37,20 @@ const updateSession = (newSession) => {
 
 const loadSession = async () => {
     const sessionServerUrl = new URL(env.ytSessionServer);
-    // imputnet/yt-session-generator exposes its session JSON at /token.
-    sessionServerUrl.pathname = "/token";
+    // Keep Cobalt's documented endpoint; yt-session-generator also aliases it to /token.
+    sessionServerUrl.pathname = "/get_pot";
 
-    const newSession = await fetch(
+    const response = await fetch(
         sessionServerUrl,
         { method: 'POST', dispatcher: defaultAgent }
-    ).then(a => a.json());
+    );
+
+    if (!response.ok) {
+        const details = (await response.text()).slice(0, 200);
+        throw new Error(`session server returned HTTP ${response.status}: ${details}`);
+    }
+
+    const newSession = await response.json();
 
     validateSession(newSession);
 
