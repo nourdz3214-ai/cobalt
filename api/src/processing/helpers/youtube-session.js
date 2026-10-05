@@ -37,7 +37,8 @@ const updateSession = (newSession) => {
 
 const loadSession = async () => {
     const sessionServerUrl = new URL(env.ytSessionServer);
-    sessionServerUrl.pathname = "/get_pot";
+    // imputnet/yt-session-generator exposes its session JSON at /token.
+    sessionServerUrl.pathname = "/token";
 
     const newSession = await fetch(
         sessionServerUrl,
