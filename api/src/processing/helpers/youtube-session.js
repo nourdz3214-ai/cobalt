@@ -37,13 +37,22 @@ const updateSession = (newSession) => {
 
 const loadSession = async () => {
     const sessionServerUrl = new URL(env.ytSessionServer);
-    // Keep Cobalt's documented endpoint; yt-session-generator also aliases it to /token.
+    // Support current generators and older images that expose only /token.
     sessionServerUrl.pathname = "/get_pot";
 
-    const response = await fetch(
+    let response = await fetch(
         sessionServerUrl,
         { method: 'POST', dispatcher: defaultAgent }
     );
+
+    if (response.status === 404) {
+        await response.body?.cancel();
+        sessionServerUrl.pathname = "/token";
+        response = await fetch(
+            sessionServerUrl,
+            { method: 'POST', dispatcher: defaultAgent }
+        );
+    }
 
     if (!response.ok) {
         const details = (await response.text()).slice(0, 200);
